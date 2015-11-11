@@ -44,11 +44,14 @@ public class ZasshokuBot implements Runnable {
 
 		// 認証
 		twitter = TwitterFactory.getSingleton();
-
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
+
+		// アクセストークンファイルを作っていなければ、トークンを生成して保持
 		if (readAccessTokenFromFile() == false) {
 			token = new AccessToken(accessToken, accessTokenSecret);
-		}
+			writeAccessTokenToFile(token);
+		}//	trueだったらthis.tokenに読まれている
+
 		twitter.setOAuthAccessToken(token);
 
 	}
@@ -69,7 +72,7 @@ public class ZasshokuBot implements Runnable {
 		if (expStatuses == null) {
 			// ユーザレベル情報が読み出せないなら新規作成する。
 			// 起動時しか読み込まない（普段はオンメモリ）。書き込むのはリプライとかRTとか誰かの経験値が上がったらその都度。
-			expStatuses = new ArrayList<EXPStatus>();
+			expStatuses = new ArrayList<>();
 		}
 
 		while (true) {
@@ -110,36 +113,32 @@ public class ZasshokuBot implements Runnable {
 				// ◆タイムライン拾い
 
 				// HomeTimeline取得
-				List<Status> recentHomeTimeline = getRecentHomeTimeline(twitter);
+				List<Status> recentHomeTimeline = getRecentTimeline(TimeLineType.HOME);
 				// mentionTimeline取得
-				List<Status> mentionTimeline = getRecentMentionTimeline(twitter);
+				List<Status> mentionTimeline = getRecentTimeline(TimeLineType.MENTION);
 
-				// フラグ
+				// 便乗RT判定。TLに5RT以上のRTでないツイートが流れていたら、RTする。
 				for (Status status : recentHomeTimeline) {
-
 					sa.retweetToo(twitter, status, isDebug);
-
-					// sa.bottoYondaka(twitter, status, isDebug);
-
 				}
 
+				// リプライ判定。誰かからリプライが来ているため、その返事を用意する。
 				for (Status status : mentionTimeline) {
-
-					// sa.checkFrendship(twitter, status);
-
 					sa.checkReplyFromZasshoku(twitter, status, textList,
 							replyCount++, expStatuses, isDebug);
-
 				}
 
-				// Thread.sleep(300000);
+				// 5分待つ
 				Thread.sleep(FIVE_MINUTE_MILLISEC);
 
 			} catch (InterruptedException | TwitterException | IOException e) {
+
 				e.printStackTrace();
 
 				System.out.println("ツイートに失敗しました。5分後に再挑戦します。");
 
+
+				// API制限を疑う。でも概ね「Duplicate tweet」だと思う。
 				if (homeTimeline != null) {
 					RateLimitStatus rateLimitStatus = homeTimeline
 							.getRateLimitStatus();
@@ -149,8 +148,10 @@ public class ZasshokuBot implements Runnable {
 				}
 
 				try {
+					// 5分待つ
 					Thread.sleep(FIVE_MINUTE_MILLISEC);
 				} catch (InterruptedException e1) {
+					// 5分待つことすらできないクズ
 					e1.printStackTrace();
 					System.out.println("5分待てなかったのですぐやります。");
 				}
@@ -163,70 +164,53 @@ public class ZasshokuBot implements Runnable {
 
 	}
 
-	/**
-	 * 前回取得したStatus以降のListを返す。 （これらにはアクションしていない）
-	 * 
-	 * @param twitter
-	 * @throws TwitterException
-	 */
-	public List<Status> getRecentHomeTimeline(Twitter twitter)
-			throws TwitterException {
 
-		Paging page = new Paging(1, 200);
-		ResponseList<Status> homeTimeline = twitter.getHomeTimeline(page);
-
-		List<Status> returnList = new ArrayList<Status>();
-
-		// 最初
-		if (latestHomeTimelineStatus == null) {
-			latestHomeTimelineStatus = homeTimeline.get(0);
-			return homeTimeline;
-		}
-
-		for (Status status : homeTimeline) {
-			if (latestHomeTimelineStatus.getId() != status.getId()) {
-				returnList.add(status);
-			} else {
-				break;
-			}
-		}
-
-		latestHomeTimelineStatus = homeTimeline.get(0);
-
-		return returnList;
+	private enum TimeLineType {
+		HOME, MENTION
 	}
 
 	/**
-	 * 前回取得したStatus以降のListを返す。 （これらにはアクションしていない）
-	 * 
-	 * @param twitter
+	 * 前回取得したStatus以降のListを返す。HomeかMemtionは引数で選択。
+	 *
+	 * @param type ホームかリプライ
+	 * @return 差分だけのツイート
 	 * @throws TwitterException
 	 */
-	public List<Status> getRecentMentionTimeline(Twitter twitter)
-			throws TwitterException {
+	private List<Status> getRecentTimeline(TimeLineType type) throws TwitterException{
+
+		 Status latestTimelineStatus = type == TimeLineType.HOME ? this.latestHomeTimelineStatus : this.latestMentionTimelineStatus;
 
 		Paging page = new Paging(1, 200);
-		ResponseList<Status> homeTimeline = twitter.getMentionsTimeline(page);
+		ResponseList<Status> timeline = type == TimeLineType.HOME ? this.twitter.getHomeTimeline(page) : this.twitter.getMentionsTimeline(page);
 
-		List<Status> returnList = new ArrayList<Status>();
+		List<Status> returnList = new ArrayList<>();
 
-		// 最初
-		if (latestMentionTimelineStatus == null) {
-			latestMentionTimelineStatus = homeTimeline.get(0);
-			return homeTimeline;
+		// そもそも取得していない時（起動時など）の処理
+		if( latestTimelineStatus == null) {
+			if(type == TimeLineType.HOME)
+				this.latestHomeTimelineStatus = timeline.get(0);
+			else
+				this.latestMentionTimelineStatus = timeline.get(0);
+			return timeline;
 		}
 
-		for (Status status : homeTimeline) {
-			if (latestMentionTimelineStatus.getId() != status.getId()) {
+		// 差分のみreturnListへ追加
+		for( Status status : timeline){
+			if( latestTimelineStatus.getId() != status.getId() ){
 				returnList.add(status);
-			} else {
+			}else{
 				break;
 			}
 		}
 
-		latestMentionTimelineStatus = homeTimeline.get(0);
+		// 現在の先頭のツイートIDをlatestとして登録
+		if(type == TimeLineType.HOME)
+			this.latestHomeTimelineStatus = timeline.get(0);
+		else
+			this.latestMentionTimelineStatus = timeline.get(0);
 
 		return returnList;
+
 	}
 
 	/**
@@ -254,22 +238,22 @@ public class ZasshokuBot implements Runnable {
 
 	}
 
-//	/**
-//	 * アクセストークンを保存
-//	 *
-//	 */
-//	public void writeAccessTokenToFile() {
-//
-//		File accessTokenFile = new File(ACCESS_TOKEN_FILE_PATH);
-//
-//		try(ObjectOutputStream outObject = new ObjectOutputStream(
-//				new FileOutputStream(accessTokenFile.getName()))) {
-//
-//			outObject.writeObject(this.token);
-//
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
+	/**
+	 * アクセストークンを保存
+	 *
+	 */
+	public void writeAccessTokenToFile(AccessToken target) {
+
+		File accessTokenFile = new File(ACCESS_TOKEN_FILE_PATH);
+
+		try(ObjectOutputStream outObject = new ObjectOutputStream(
+				new FileOutputStream(accessTokenFile.getName()))) {
+
+			outObject.writeObject(target);
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 }
