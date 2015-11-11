@@ -1,11 +1,6 @@
 package zasshoku.bot.core;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +17,7 @@ import zasshoku.bot.engine.MarcovGetterThread;
 
 public class ZasshokuBot implements Runnable {
 
-	private long FIVE_MINUTE_MILLISEC = 300_000; // ‚¢‚¢‚©A5•ª‚¾‚¼B300_000‚¾‚¼B
+	private long FIVE_MINUTE_MILLISEC = 300_000; // ã„ã„ã‹ã€5åˆ†ã ãã€‚300_000ã ãã€‚
 	private String ACCESS_TOKEN_FILE_PATH = "./asset/atoken.token";
 
 	private Twitter twitter = null;
@@ -32,15 +27,22 @@ public class ZasshokuBot implements Runnable {
 	private static final String accessTokenSecret = "34ZqVhSMLvAoIvrG0yv26T5ydITawMnOqkKT09FV1M";
 	private AccessToken token;
 
-	boolean isDebug = false;
+	private boolean isDebug = false;
 
+	/**
+	 * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿<br>
+	 *     ãƒ»ãƒ¢ãƒ¼ãƒ‰ï¼ˆãƒ‡ãƒãƒƒã‚°ãƒ»é€šå¸¸ï¼‰ã®åˆ¤å®š<br>
+	 *     ãƒ»ã‚¢ã‚«ã‚¦ãƒ³ãƒˆèªè¨¼
+	 *
+	 * @param arg ç©ºæ–‡å­—ï¼ˆé€šå¸¸ï¼‰ã‚‚ã—ãã¯ "-Debug"ï¼ˆãƒ‡ãƒãƒƒã‚°ãƒ¢ãƒ¼ãƒ‰ï¼‰
+     */
 	public ZasshokuBot(String arg) {
 
-		if ("-Debug".equals(arg)) {
+		if (Main.DEBUG_MODE.equals(arg)) {
 			isDebug = true;
 		}
 
-		// ”FØ
+		// èªè¨¼
 		twitter = TwitterFactory.getSingleton();
 
 		twitter.setOAuthConsumer(consumerKey, consumerSecret);
@@ -65,8 +67,8 @@ public class ZasshokuBot implements Runnable {
 
 		expStatuses = sa.getUserData_Experiences(isDebug);
 		if (expStatuses == null) {
-			// ƒ†[ƒUƒŒƒxƒ‹î•ñ‚ª“Ç‚İo‚¹‚È‚¢‚È‚çV‹Kì¬‚·‚éB
-			// ‹N“®‚µ‚©“Ç‚İ‚Ü‚È‚¢i•’i‚ÍƒIƒ“ƒƒ‚ƒŠjB‘‚«‚Ş‚Ì‚ÍƒŠƒvƒ‰ƒC‚Æ‚©RT‚Æ‚©’N‚©‚ÌŒoŒ±’l‚ªã‚ª‚Á‚½‚ç‚»‚Ì“s“xB
+			// ãƒ¦ãƒ¼ã‚¶ãƒ¬ãƒ™ãƒ«æƒ…å ±ãŒèª­ã¿å‡ºã›ãªã„ãªã‚‰æ–°è¦ä½œæˆã™ã‚‹ã€‚
+			// èµ·å‹•æ™‚ã—ã‹èª­ã¿è¾¼ã¾ãªã„ï¼ˆæ™®æ®µã¯ã‚ªãƒ³ãƒ¡ãƒ¢ãƒªï¼‰ã€‚æ›¸ãè¾¼ã‚€ã®ã¯ãƒªãƒ—ãƒ©ã‚¤ã¨ã‹RTã¨ã‹èª°ã‹ã®çµŒé¨“å€¤ãŒä¸ŠãŒã£ãŸã‚‰ãã®éƒ½åº¦ã€‚
 			expStatuses = new ArrayList<EXPStatus>();
 		}
 
@@ -79,7 +81,7 @@ public class ZasshokuBot implements Runnable {
 				tweetCounter++;
 				replyCount = 0;
 
-				// æ“¾Ï‚İŠÖŒW‚È‚­Å‹ß‚©‚ç200Œê
+				// å–å¾—æ¸ˆã¿é–¢ä¿‚ãªãæœ€è¿‘ã‹ã‚‰200èª
 				Paging page = new Paging(1, 200);
 				homeTimeline = twitter.getHomeTimeline(page);
 				List<String> textList = new ArrayList<>(200);
@@ -89,7 +91,7 @@ public class ZasshokuBot implements Runnable {
 					textList.add(status.getText());
 				}
 
-				// Ÿ’Êí‚Ì‚Â‚Ô‚â‚«
+				// â—†é€šå¸¸ã®ã¤ã¶ã‚„ã
 				if (tweetCounter > 11) {
 					tweetCounter = 0;
 
@@ -98,21 +100,21 @@ public class ZasshokuBot implements Runnable {
 					String result = MarcovGetterThread.getResult();
 					result = result.replaceAll("#", "");
 
-					// y’Êí‚Ì‚Â‚Ô‚â‚«z
+					// ã€é€šå¸¸ã®ã¤ã¶ã‚„ãã€‘
 					System.out.println(Main.getTime() + " " + result);
 					if (!isDebug)
 						twitter.updateStatus(result);
 
 				}
 
-				// Ÿƒ^ƒCƒ€ƒ‰ƒCƒ“E‚¢
+				// â—†ã‚¿ã‚¤ãƒ ãƒ©ã‚¤ãƒ³æ‹¾ã„
 
-				// HomeTimelineæ“¾
+				// HomeTimelineå–å¾—
 				List<Status> recentHomeTimeline = getRecentHomeTimeline(twitter);
-				// mentionTimelineæ“¾
+				// mentionTimelineå–å¾—
 				List<Status> mentionTimeline = getRecentMentionTimeline(twitter);
 
-				// ƒtƒ‰ƒO
+				// ãƒ•ãƒ©ã‚°
 				for (Status status : recentHomeTimeline) {
 
 					sa.retweetToo(twitter, status, isDebug);
@@ -136,13 +138,13 @@ public class ZasshokuBot implements Runnable {
 			} catch (InterruptedException | TwitterException | IOException e) {
 				e.printStackTrace();
 
-				System.out.println("ƒcƒC[ƒg‚É¸”s‚µ‚Ü‚µ‚½B5•ªŒã‚ÉÄ’§í‚µ‚Ü‚·B");
+				System.out.println("ãƒ„ã‚¤ãƒ¼ãƒˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚5åˆ†å¾Œã«å†æŒ‘æˆ¦ã—ã¾ã™ã€‚");
 
 				if (homeTimeline != null) {
 					RateLimitStatus rateLimitStatus = homeTimeline
 							.getRateLimitStatus();
 					int untilReset = rateLimitStatus.getSecondsUntilReset();
-					System.out.println(Main.getTime() + " API§ŒÀ‚©‚àHƒŠƒZƒbƒg‚Ü‚Å‚ ‚Æ "
+					System.out.println(Main.getTime() + " APIåˆ¶é™ã‹ã‚‚ï¼Ÿãƒªã‚»ãƒƒãƒˆã¾ã§ã‚ã¨ "
 							+ untilReset + "sec");
 				}
 
@@ -150,7 +152,7 @@ public class ZasshokuBot implements Runnable {
 					Thread.sleep(FIVE_MINUTE_MILLISEC);
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
-					System.out.println("5•ª‘Ò‚Ä‚È‚©‚Á‚½‚Ì‚Å‚·‚®‚â‚è‚Ü‚·B");
+					System.out.println("5åˆ†å¾…ã¦ãªã‹ã£ãŸã®ã§ã™ãã‚„ã‚Šã¾ã™ã€‚");
 				}
 
 				continue;
@@ -162,7 +164,7 @@ public class ZasshokuBot implements Runnable {
 	}
 
 	/**
-	 * ‘O‰ñæ“¾‚µ‚½StatusˆÈ~‚ÌList‚ğ•Ô‚·B i‚±‚ê‚ç‚É‚ÍƒAƒNƒVƒ‡ƒ“‚µ‚Ä‚¢‚È‚¢j
+	 * å‰å›å–å¾—ã—ãŸStatusä»¥é™ã®Listã‚’è¿”ã™ã€‚ ï¼ˆã“ã‚Œã‚‰ã«ã¯ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã—ã¦ã„ãªã„ï¼‰
 	 * 
 	 * @param twitter
 	 * @throws TwitterException
@@ -175,7 +177,7 @@ public class ZasshokuBot implements Runnable {
 
 		List<Status> returnList = new ArrayList<Status>();
 
-		// Å‰
+		// æœ€åˆ
 		if (latestHomeTimelineStatus == null) {
 			latestHomeTimelineStatus = homeTimeline.get(0);
 			return homeTimeline;
@@ -195,7 +197,7 @@ public class ZasshokuBot implements Runnable {
 	}
 
 	/**
-	 * ‘O‰ñæ“¾‚µ‚½StatusˆÈ~‚ÌList‚ğ•Ô‚·B i‚±‚ê‚ç‚É‚ÍƒAƒNƒVƒ‡ƒ“‚µ‚Ä‚¢‚È‚¢j
+	 * å‰å›å–å¾—ã—ãŸStatusä»¥é™ã®Listã‚’è¿”ã™ã€‚ ï¼ˆã“ã‚Œã‚‰ã«ã¯ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã—ã¦ã„ãªã„ï¼‰
 	 * 
 	 * @param twitter
 	 * @throws TwitterException
@@ -208,7 +210,7 @@ public class ZasshokuBot implements Runnable {
 
 		List<Status> returnList = new ArrayList<Status>();
 
-		// Å‰
+		// æœ€åˆ
 		if (latestMentionTimelineStatus == null) {
 			latestMentionTimelineStatus = homeTimeline.get(0);
 			return homeTimeline;
@@ -228,9 +230,8 @@ public class ZasshokuBot implements Runnable {
 	}
 
 	/**
-	 * ƒtƒ@ƒCƒ‹‚©‚çƒAƒNƒZƒXƒg[ƒNƒ“‚ğ“Ç‚Ş
+	 * ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ã‚¢ã‚¯ã‚»ã‚¹ãƒˆãƒ¼ã‚¯ãƒ³ã‚’èª­ã‚€
 	 * 
-	 * @param context
 	 * @return true OK: false NG
 	 */
 	public boolean readAccessTokenFromFile() {
@@ -238,39 +239,37 @@ public class ZasshokuBot implements Runnable {
 		File accessTokenFile = new File(ACCESS_TOKEN_FILE_PATH);
 
 		if (accessTokenFile.exists()) {
-			try {
-				FileInputStream input = new FileInputStream(
-						accessTokenFile.getName());
-				ObjectInputStream inObj = new ObjectInputStream(input);
+
+			try (ObjectInputStream inObj = new ObjectInputStream(new FileInputStream(accessTokenFile.getName()))) {
+
 				this.token = (AccessToken) inObj.readObject();
-				inObj.close();
-				input.close();
 				return true;
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+
 		}
 		return false;
 
 	}
 
-	/**
-	 * ƒAƒNƒZƒXƒg[ƒNƒ“‚ğ•Û‘¶
-	 * 
-	 * @param context
-	 */
-	public void writeAccessTokenToFile() {
-		File accessTokenFile = new File(ACCESS_TOKEN_FILE_PATH);
-		try {
-			FileOutputStream output = new FileOutputStream(
-					accessTokenFile.getName());
-			ObjectOutputStream outObject = new ObjectOutputStream(output);
-			outObject.writeObject(this.token);
-
-			outObject.close();
-			output.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	/**
+//	 * ã‚¢ã‚¯ã‚»ã‚¹ãƒˆãƒ¼ã‚¯ãƒ³ã‚’ä¿å­˜
+//	 *
+//	 */
+//	public void writeAccessTokenToFile() {
+//
+//		File accessTokenFile = new File(ACCESS_TOKEN_FILE_PATH);
+//
+//		try(ObjectOutputStream outObject = new ObjectOutputStream(
+//				new FileOutputStream(accessTokenFile.getName()))) {
+//
+//			outObject.writeObject(this.token);
+//
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 }
