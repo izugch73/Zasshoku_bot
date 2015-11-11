@@ -33,7 +33,7 @@ public class Marcov {
 			try {
 				tagger.analyze(str.toString(), tokens);
 			} catch (Exception e) {
-				System.out.println("[System] " + str + " ‚ª‰ğÍ‚Å‚«‚Ü‚¹‚ñB");
+				System.out.println("[System] " + str + " ãŒè§£æã§ãã¾ã›ã‚“ã€‚");
 				continue;
 			}
 

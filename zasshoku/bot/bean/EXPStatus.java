@@ -21,7 +21,7 @@ public class EXPStatus implements Serializable {
 		this.user = user;
 		// this.level = level;
 		// this.exp = exp;
-		this.nextLvExp = getNextLevelExperiencePrivate(); // 2‚É‚È‚é‚Ì‚É•K—v‚ÈŒoŒ±’l
+		this.nextLvExp = getNextLevelExperiencePrivate(); // 2ã«ãªã‚‹ã®ã«å¿…è¦ãªçµŒé¨“å€¤
 	}
 
 	public User getUser() {
@@ -38,13 +38,13 @@ public class EXPStatus implements Serializable {
 
 	/**
 	 * 
-	 * @return ƒŒƒxƒ‹‚ªã‚Á‚½‚©‚Ç‚¤‚©
+	 * @return ãƒ¬ãƒ™ãƒ«ãŒä¸Šã£ãŸã‹ã©ã†ã‹
 	 */
 	public boolean setExp(int exp) {
 		this.exp = exp;
 
 		if (exp >= nextLvExp) {
-			this.level++; // ƒŒƒxƒ‰ƒbƒ|
+			this.level++; // ãƒ¬ãƒ™ãƒ©ãƒƒãƒ
 			this.nextLvExp = getNextLevelExperiencePrivate();
 			return true;
 		}
@@ -65,7 +65,7 @@ public class EXPStatus implements Serializable {
 	}
 
 	/**
-	 * Ÿ‚ÌƒŒƒxƒ‹‚É‚È‚é‚½‚ß‚É•K—v‚ÈŒoŒ±’l
+	 * æ¬¡ã®ãƒ¬ãƒ™ãƒ«ã«ãªã‚‹ãŸã‚ã«å¿…è¦ãªçµŒé¨“å€¤
 	 */
 	public int getNextLevelExperience() {
 		return this.nextLvExp;

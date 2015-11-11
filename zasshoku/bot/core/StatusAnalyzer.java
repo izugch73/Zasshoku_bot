@@ -23,8 +23,9 @@ public class StatusAnalyzer {
 
 	// (?<=^|(?<=[^a-zA-Z0-9-_\\.]))
 	public static final String REGEX_REPLY = "@([A-Za-z]+[A-Za-z0-9_]+)";
+	public static final String ZASSHOKU_BOT = "zasshoku_bot";
 
-	// ƒŠƒvƒ‰ƒC‚ª—ˆ‚Ä‚é‚©‚ç“K“–‚É•Ô‚·
+	// ãƒªãƒ—ãƒ©ã‚¤ãŒæ¥ã¦ã‚‹ã‹ã‚‰é©å½“ã«è¿”ã™
 	public void checkReplyFromZasshoku(Twitter twitter, Status status,
 			List<String> textList, int count, List<EXPStatus> expStatuses,
 			boolean isDebug) throws TwitterException, IOException {
@@ -32,24 +33,24 @@ public class StatusAnalyzer {
 		if (count > 5)
 			return;
 
-		if ("zasshoku_bot".equals(status.getUser().getScreenName())) {
-			// ©•ª‚©‚ç‚ÌƒŠƒvƒ‰ƒC‚¾‚©‚ç–³‹‚·‚é
+		if (ZASSHOKU_BOT.equals(status.getUser().getScreenName())) {
+			// è‡ªåˆ†ã‹ã‚‰ã®ãƒªãƒ—ãƒ©ã‚¤ã ã‹ã‚‰ç„¡è¦–ã™ã‚‹
 			return;
 		}
 
-		// ƒŠƒvƒ‰ƒC‚­‚ê‚½l
+		// ãƒªãƒ—ãƒ©ã‚¤ãã‚ŒãŸäºº
 		User replyFrom = status.getUser();
-		String userScreenName = replyFrom.getScreenName(); // izugch4423 (@‚È‚µ)
-		String userName = replyFrom.getName(); // éèˆÉŸ
+		String userScreenName = replyFrom.getScreenName(); // izugch4423 (@ãªã—)
+		String userName = replyFrom.getName(); // åŸå´ä¼Šæ¾„
 
-		// Šo‚¦‚Ä‚é‚©‚Ç‚¤‚©•·‚©‚ê‚½AÆ‡‚·‚é
+		// è¦šãˆã¦ã‚‹ã‹ã©ã†ã‹èã‹ã‚ŒãŸæ™‚ã€ç…§åˆã™ã‚‹
 		String text = status.getText();
-		if (text.indexOf("‚Ì‚±‚Æ‚¨‚Ú‚¦‚Ä‚éH") != -1 || text.indexOf("‚Ì‚±‚ÆŠo‚¦‚Ä‚éH") != -1
-				|| text.indexOf("‚Ì‚±‚Æ‰¯‚¦‚Ä‚éH") != -1) {
+		if (text.indexOf("ã®ã“ã¨ãŠã¼ãˆã¦ã‚‹ï¼Ÿ") != -1 || text.indexOf("ã®ã“ã¨è¦šãˆã¦ã‚‹ï¼Ÿ") != -1
+				|| text.indexOf("ã®ã“ã¨æ†¶ãˆã¦ã‚‹ï¼Ÿ") != -1) {
 
 			User target = status.getUser();
 
-			System.out.println("yƒŠƒvƒ‰ƒC‚ğ‚­‚ê‚½l‚ª•Û‘¶‚³‚ê‚Ä‚¢‚é‚©ŒŸõ‚µ‚Ä‚¢‚Ü‚·...z");
+			System.out.println("ã€ãƒªãƒ—ãƒ©ã‚¤ã‚’ãã‚ŒãŸäººãŒä¿å­˜ã•ã‚Œã¦ã„ã‚‹ã‹æ¤œç´¢ã—ã¦ã„ã¾ã™...ã€‘");
 
 			IDs readedIds = getUserData_Followers(target, isDebug);
 			// User readedUser = (User) readed[0];
@@ -58,12 +59,12 @@ public class StatusAnalyzer {
 
 				StringBuilder sb = new StringBuilder("@");
 				sb.append(target.getScreenName() + " ");
-				sb.append(target.getName() + " ‚³‚ñ‚Ì‚±‚ÆA‚¿‚å‚Á‚Æ‚í‚©‚ç‚È‚¢‚Å‚·B‚Å‚àA¡‚¨‚Ú‚¦‚Ü‚µ‚½B");
+				sb.append(target.getName() + " ã•ã‚“ã®ã“ã¨ã€ã¡ã‚‡ã£ã¨ã‚ã‹ã‚‰ãªã„ã§ã™ã€‚ã§ã‚‚ã€ä»ŠãŠã¼ãˆã¾ã—ãŸã€‚");
 
-				// Šo‚¦‚éiŸè‚Éj
+				// è¦šãˆã‚‹ï¼ˆå‹æ‰‹ã«ï¼‰
 				rememberFollower(twitter, status, isDebug);
 
-				// ‰¯‚¦‚½‚±‚Æ‚ğ’‚é
+				// æ†¶ãˆãŸã“ã¨ã‚’å–‹ã‚‹
 				statusUpdateIfIsNotDebugging(twitter, status, sb.toString(),
 						isDebug);
 				// if (!isDebug) {
@@ -77,48 +78,48 @@ public class StatusAnalyzer {
 
 				StringBuilder sb = new StringBuilder("@");
 				sb.append(target.getScreenName() + " ");
-				sb.append(target.getName() + " ‚³‚ñ‚Ì‚±‚ÆA‚¨‚Ú‚¦‚Ä‚Ü‚µ‚½‚¯‚ÇA‚¨‚Ú‚¦‚È‚¨‚µ‚Ü‚µ‚½B");
-				// Ÿè‚ÉXV‚·‚é
+				sb.append(target.getName() + " ã•ã‚“ã®ã“ã¨ã€ãŠã¼ãˆã¦ã¾ã—ãŸã‘ã©ã€ãŠã¼ãˆãªãŠã—ã¾ã—ãŸã€‚");
+				// å‹æ‰‹ã«æ›´æ–°ã™ã‚‹
 				rememberFollower(twitter, status, isDebug);
 				statusUpdateIfIsNotDebugging(twitter, status, sb.toString(),
 						isDebug);
 
-				// ¡Œ»İ‚ÌƒtƒHƒƒ[
+				// ä»Šç¾åœ¨ã®ãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼
 				IDs nowFollowerIds = twitter
 						.getFollowersIDs(target.getId(), -1);
 
-				// ‘O‰¯‚¦‚½‚Æ‚«‚ÌƒtƒHƒƒ[ˆê——Set
+				// å‰æ†¶ãˆãŸã¨ãã®ãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ä¸€è¦§Set
 				Set<Long> before = new HashSet<Long>();
 				for (Long l : readedIds.getIDs())
 					before.add(l);
 
-				// ¡Œ»İ‚ÌƒtƒHƒƒ[ˆê——Set
+				// ä»Šç¾åœ¨ã®ãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ä¸€è¦§Set
 				Set<Long> after = new HashSet<Long>();
 				for (Long l : nowFollowerIds.getIDs())
 					after.add(l);
 
-				// ·•ªiŒ¸‚Á‚Ä‚é‚Æ‚«‚¾‚¯j
+				// å·®åˆ†ï¼ˆæ¸›ã£ã¦ã‚‹ã¨ãã ã‘ï¼‰
 				before.removeAll(after);
 
 				if (before.isEmpty()) {
 
-					// ‚¨•Ï‚è‚È‚¢
+					// ãŠå¤‰ã‚Šãªã„
 					statusUpdateDirectMessageIfIsNotDebugging(twitter,
-							target.getScreenName(), "ƒtƒHƒƒ[‚É•Ï‰»‚Í‚È‚¢‚æ‚¤‚Å‚·‚Ë`I",
+							target.getScreenName(), "ãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ã«å¤‰åŒ–ã¯ãªã„ã‚ˆã†ã§ã™ã­ï½ï¼",
 							isDebug);
 
 				} else {
 
-					// ƒŠƒ€[ƒu‚³‚ê‚½l‚ÌƒŠƒXƒg‚ğì‚é
-					StringBuilder result = new StringBuilder("ˆÈ‰º‚Ìl‚ÉƒŠƒ€[ƒu‚³‚ê‚Ä‚Ü‚·B");
+					// ãƒªãƒ ãƒ¼ãƒ–ã•ã‚ŒãŸäººã®ãƒªã‚¹ãƒˆã‚’ä½œã‚‹
+					StringBuilder result = new StringBuilder("ä»¥ä¸‹ã®äººã«ãƒªãƒ ãƒ¼ãƒ–ã•ã‚Œã¦ã¾ã™ã€‚");
 					for (Long l : before) {
 						result.append(System.lineSeparator());
 						User removedUser = twitter.showUser(l);
-						result.append("E" + removedUser.getName() + "("
+						result.append("ãƒ»" + removedUser.getName() + "("
 								+ removedUser.getScreenName() + ")");
 					}
 
-					// Œ‹‰Ê‚ğDM‚·‚é
+					// çµæœã‚’DMã™ã‚‹
 					statusUpdateDirectMessageIfIsNotDebugging(twitter,
 							target.getScreenName(), result.toString(), isDebug);
 
@@ -128,17 +129,17 @@ public class StatusAnalyzer {
 
 			return;
 
-		} else if (text.indexOf("‚Ì‚±‚Æ‚¨‚Ú‚¦‚Ä") != -1
-				|| text.indexOf("‚Ì‚±‚ÆŠo‚¦‚Ä") != -1 || text.indexOf("‚Ì‚±‚Æ‰¯‚¦‚Ä") != -1) {
-			// Šo‚¦‚Ä—~‚µ‚¢ê‡‚ÍAŠo‚¦‚Ä‚ ‚°‚é
+		} else if (text.indexOf("ã®ã“ã¨ãŠã¼ãˆã¦") != -1
+				|| text.indexOf("ã®ã“ã¨è¦šãˆã¦") != -1 || text.indexOf("ã®ã“ã¨æ†¶ãˆã¦") != -1) {
+			// è¦šãˆã¦æ¬²ã—ã„å ´åˆã¯ã€è¦šãˆã¦ã‚ã’ã‚‹
 
-			// u~‚³‚ñ‚Ì‚±‚ÆAŠo‚¦‚Ü‚µ‚½‚æ`v‚Æ‚¢‚¤ƒZƒŠƒt‚ğƒcƒC[ƒg‚·‚éB
+			// ã€Œ~ã•ã‚“ã®ã“ã¨ã€è¦šãˆã¾ã—ãŸã‚ˆï½ã€ã¨ã„ã†ã‚»ãƒªãƒ•ã‚’ãƒ„ã‚¤ãƒ¼ãƒˆã™ã‚‹ã€‚
 			String result = rememberFollower(twitter, status, isDebug);
 			statusUpdateIfIsNotDebugging(twitter, status, result, isDebug);
 
 			return;
 
-		} else if (text.endsWith("ƒXƒe[ƒ^ƒX")) {
+		} else if (text.endsWith("ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹")) {
 
 			EXPStatus targetUser = null;
 			for (EXPStatus es : expStatuses) {
@@ -147,22 +148,22 @@ public class StatusAnalyzer {
 					break;
 				}
 			}
-			// ƒT[ƒ`‚µ‚Ä‘¶İ‚µ‚Ä‚È‚©‚Á‚½‚çV‹K
+			// ã‚µãƒ¼ãƒã—ã¦å­˜åœ¨ã—ã¦ãªã‹ã£ãŸã‚‰æ–°è¦
 			if (targetUser == null) {
 				targetUser = new EXPStatus(replyFrom);
 				targetUser.addExp(1);
 				expStatuses.add(targetUser);
 			}
 
-			// ƒXƒe[ƒ^ƒX‚ğ•\¦‚·‚éB
+			// ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
 			StringBuilder sb = new StringBuilder("@");
 			sb.append(userScreenName + " ");
-			sb.append(userName + "‚³‚ñ‚ÌƒŒƒxƒ‹‚Í" + targetUser.getLevel() + "‚Å‚·B");
+			sb.append(userName + "ã•ã‚“ã®ãƒ¬ãƒ™ãƒ«ã¯" + targetUser.getLevel() + "ã§ã™ã€‚");
 			sb.append(System.lineSeparator());
-			sb.append("Œ»İ‚ÌŒoŒ±’l‚Í " + targetUser.getExp() + "exp ‚Å‚·B");
+			sb.append("ç¾åœ¨ã®çµŒé¨“å€¤ã¯ " + targetUser.getExp() + "exp ã§ã™ã€‚");
 			sb.append(System.lineSeparator());
-			sb.append("Ÿ‚ÌƒŒƒxƒ‹‚Ü‚Å‚ ‚Æ " + targetUser.getNextLevelExperience()
-					+ "exp •K—v‚Å‚·B");
+			sb.append("æ¬¡ã®ãƒ¬ãƒ™ãƒ«ã¾ã§ã‚ã¨ " + targetUser.getNextLevelExperience()
+					+ "exp å¿…è¦ã§ã™ã€‚");
 			sb.append(System.lineSeparator());
 			sb.append("#zasshoku_bot_exp");
 
@@ -171,31 +172,31 @@ public class StatusAnalyzer {
 
 		}
 
-		// ////////////////////////////////////// // ‚±‚±‚©‚ç‚Íâ‘Î‚â‚é
+		// ////////////////////////////////////// // ã“ã“ã‹ã‚‰ã¯çµ¶å¯¾ã‚„ã‚‹
 
 		boolean ifLevelUp = false;
 		EXPStatus targetUser = null;
-		// ƒŠƒvƒ‰ƒC‚ğ‚­‚ê‚½‚Ì‚ÅA1exp
+		// ãƒªãƒ—ãƒ©ã‚¤ã‚’ãã‚ŒãŸã®ã§ã€1exp
 		for (EXPStatus es : expStatuses) {
 			if (userScreenName.equals(es.getUser().getScreenName())) {
 				ifLevelUp = es.setExp(es.getExp() + 1);
 				targetUser = es;
-				System.out.println("@" + userScreenName + "‚³‚ñ‚ÉŒoŒ±’l‚ğ1•t—^‚µ‚Ü‚µ‚½B");
-				System.out.println("Œ»İŒoŒ±’l " + es.getExp());
+				System.out.println("@" + userScreenName + "ã•ã‚“ã«çµŒé¨“å€¤ã‚’1ä»˜ä¸ã—ã¾ã—ãŸã€‚");
+				System.out.println("ç¾åœ¨çµŒé¨“å€¤ " + es.getExp());
 				break;
 			}
 		}
-		// ƒT[ƒ`‚µ‚Ä‘¶İ‚µ‚Ä‚È‚©‚Á‚½‚çV‹K
+		// ã‚µãƒ¼ãƒã—ã¦å­˜åœ¨ã—ã¦ãªã‹ã£ãŸã‚‰æ–°è¦
 		if (targetUser == null) {
 			targetUser = new EXPStatus(replyFrom);
 			targetUser.addExp(1);
 			expStatuses.add(targetUser);
 		}
 
-		// •Ô‚·•¶š—ñ‚ğì‚é
+		// è¿”ã™æ–‡å­—åˆ—ã‚’ä½œã‚‹
 		try {
 
-			// ¬Œ÷‚·‚é‚Ü‚Åƒ}ƒ‹ƒRƒt•¶š—ñ‚ğì‚é
+			// æˆåŠŸã™ã‚‹ã¾ã§ãƒãƒ«ã‚³ãƒ•æ–‡å­—åˆ—ã‚’ä½œã‚‹
 			while (!getMarcovText(textList))
 				;
 			String marResult = MarcovGetterThread.getResult();
@@ -210,11 +211,11 @@ public class StatusAnalyzer {
 			statusUpdateIfIsNotDebugging(twitter, status, result, isDebug);
 
 			if (ifLevelUp) {
-				// ƒŒƒxƒ‹ƒAƒbƒvî•ñ
+				// ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æƒ…å ±
 				StringBuilder sb2 = new StringBuilder("@");
 				sb2.append(userScreenName + " ");
-				sb2.append("ƒŒƒxƒ‹ƒAƒbƒvI" + (targetUser.getLevel() - 1) + "¨"
-						+ targetUser.getLevel() + "@Ÿ‚ÌƒŒƒxƒ‹‚Ü‚Å"); // ƒŒƒxƒ‹‚ÍŠù‚Éã‚ª‚Á‚Ä‚é‚Ì‚ÅA(-1)¨(}0)
+				sb2.append("ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—ï¼" + (targetUser.getLevel() - 1) + "â†’"
+						+ targetUser.getLevel() + "ã€€æ¬¡ã®ãƒ¬ãƒ™ãƒ«ã¾ã§"); // ãƒ¬ãƒ™ãƒ«ã¯æ—¢ã«ä¸ŠãŒã£ã¦ã‚‹ã®ã§ã€(-1)â†’(Â±0)
 				sb2.append(targetUser.getNextLevelExperience() + "exp");
 				sb2.append(System.lineSeparator());
 				sb2.append("#zasshoku_bot_exp");
@@ -224,17 +225,17 @@ public class StatusAnalyzer {
 			}
 
 		} catch (Exception e) {
-			// ‚½‚Ô‚ñƒcƒC[ƒg‚É¸”s‚µ‚Ä‚éB
+			// ãŸã¶ã‚“ãƒ„ã‚¤ãƒ¼ãƒˆã«å¤±æ•—ã—ã¦ã‚‹ã€‚
 			return;
 		}
 
-		// ƒ†[ƒU[‚ÌƒŒƒxƒ‹ƒAƒbƒvî•ñ•Û‘¶
+		// ãƒ¦ãƒ¼ã‚¶ãƒ¼ã®ãƒ¬ãƒ™ãƒ«ã‚¢ãƒƒãƒ—æƒ…å ±ä¿å­˜
 		saveToUserData_Experiences(expStatuses);
 
 	}
 
 	/**
-	 * HomeTimeLineE‚Á‚ÄA5ŒˆÈãƒŠƒcƒC[ƒg‚ª‚ ‚éƒcƒC[ƒg‚ª‚ ‚é‚È‚ç•Öæ‚·‚éB ‚½‚¾‚µ‚»‚ê‚ªRT‚È‚ç‚µ‚È‚¢B
+	 * HomeTimeLineæ‹¾ã£ã¦ã€5ä»¶ä»¥ä¸Šãƒªãƒ„ã‚¤ãƒ¼ãƒˆãŒã‚ã‚‹ãƒ„ã‚¤ãƒ¼ãƒˆãŒã‚ã‚‹ãªã‚‰ä¾¿ä¹—ã™ã‚‹ã€‚ ãŸã ã—ãã‚ŒãŒRTãªã‚‰ã—ãªã„ã€‚
 	 * 
 	 * @param twitter
 	 * @param status
@@ -254,7 +255,7 @@ public class StatusAnalyzer {
 
 		if (status.getRetweetCount() > 5) {
 			statusUpdateRetweetIfIsNotDebugging(twitter, status, isDebug);
-			// System.out.println(Main.getTime() + "yƒŠƒcƒC[ƒgz" +
+			// System.out.println(Main.getTime() + "ã€ãƒªãƒ„ã‚¤ãƒ¼ãƒˆã€‘" +
 			// status.getText());
 			// if (!isDebug)
 			// twitter.retweetStatus(status.getId());
@@ -279,7 +280,7 @@ public class StatusAnalyzer {
 			if (Thread.State.TERMINATED != thread.getState()) {
 
 				System.out
-						.println("[Marcov processing error] •¶Í‚ğ“K“–‚Éì‚é‚Ì‚É¸”s‚µ‚½‚Ì‚Å‚à‚Á‚©‚¢‚â‚è‚Ü‚·B");
+						.println("[Marcov processing error] æ–‡ç« ã‚’é©å½“ã«ä½œã‚‹ã®ã«å¤±æ•—ã—ãŸã®ã§ã‚‚ã£ã‹ã„ã‚„ã‚Šã¾ã™ã€‚");
 				thread.stopThread();
 
 				return false;
@@ -297,14 +298,14 @@ public class StatusAnalyzer {
 	}
 
 	/**
-	 * ‚Ğ‚Æ‚Ì‚±‚Æ‚ğŠo‚¦‚éB’‚é‚È‚çA–ß‚Á‚½’l‚ğstatus Update‚·‚éB<br>
-	 * i‚±‚ê‚ğŒÄ‚Ño‚µ‚½‚¾‚¯‚¾‚ÆA•Û‘¶‚·‚é‚ª‰½‚à’‚ç‚È‚¢‚Ì‚Åó‚¯æ‚èè‚É‚Í•ª‚©‚ç‚È‚¢j
+	 * ã²ã¨ã®ã“ã¨ã‚’è¦šãˆã‚‹ã€‚å–‹ã‚‹ãªã‚‰ã€æˆ»ã£ãŸå€¤ã‚’status Updateã™ã‚‹ã€‚<br>
+	 * ï¼ˆã“ã‚Œã‚’å‘¼ã³å‡ºã—ãŸã ã‘ã ã¨ã€ä¿å­˜ã™ã‚‹ãŒä½•ã‚‚å–‹ã‚‰ãªã„ã®ã§å—ã‘å–ã‚Šæ‰‹ã«ã¯åˆ†ã‹ã‚‰ãªã„ï¼‰
 	 * 
 	 * @param twitter
 	 * @param status
-	 *            "‰¯‚¦‚Ä‚­‚ê`"‚Á‚ÄŒ¾‚Á‚½l‚ÌƒcƒC[ƒgBƒ†[ƒUî•ñ‚Í‚±‚±‚©‚ç’D‚¤B
+	 *            "æ†¶ãˆã¦ãã‚Œï½"ã£ã¦è¨€ã£ãŸäººã®ãƒ„ã‚¤ãƒ¼ãƒˆã€‚ãƒ¦ãƒ¼ã‚¶æƒ…å ±ã¯ã“ã“ã‹ã‚‰å¥ªã†ã€‚
 	 * @param isDebug
-	 * @return "@getScreenName() getName()‚³‚ñ‚Ì‚±‚ÆAŠo‚¦‚Ü‚µ‚½‚æ`B"
+	 * @return "@getScreenName() getName()ã•ã‚“ã®ã“ã¨ã€è¦šãˆã¾ã—ãŸã‚ˆï½ã€‚"
 	 */
 	private String rememberFollower(Twitter twitter, Status status,
 			boolean isDebug) throws TwitterException {
@@ -315,12 +316,12 @@ public class StatusAnalyzer {
 
 		StringBuilder sb = new StringBuilder("@");
 		sb.append(target.getScreenName() + " ");
-		sb.append(target.getName() + " ‚³‚ñ‚Ì‚±‚ÆA‚¨‚Ú‚¦‚Ü‚µ‚½‚æ`B");
+		sb.append(target.getName() + " ã•ã‚“ã®ã“ã¨ã€ãŠã¼ãˆã¾ã—ãŸã‚ˆï½ã€‚");
 
-		System.out.println(Main.getTime() + " yî•ñ‚Ì‹L‰¯z"
+		System.out.println(Main.getTime() + " ã€æƒ…å ±ã®è¨˜æ†¶ã€‘"
 				+ status.getUser().getName() + "(@"
 				+ status.getUser().getScreenName()
-				+ ")‚ÌƒtƒHƒƒ[ˆê——‚ğ•Û‘¶‚µ‚Ü‚µ‚½Bfollower="
+				+ ")ã®ãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ä¸€è¦§ã‚’ä¿å­˜ã—ã¾ã—ãŸã€‚follower="
 				+ twitter.getFollowersIDs(target.getId(), -1).getIDs().length);
 
 		String result = sb.toString();
@@ -330,14 +331,14 @@ public class StatusAnalyzer {
 
 	/**
 	 * 
-	 * ‚Â‚Ô‚â‚­BƒRƒ“ƒ\[ƒ‹‚Ö‚ÌƒfƒoƒbƒO•¶š—ñ‚Í•K‚¸o‚·B
+	 * ã¤ã¶ã‚„ãã€‚ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã¸ã®ãƒ‡ãƒãƒƒã‚°æ–‡å­—åˆ—ã¯å¿…ãšå‡ºã™ã€‚
 	 * 
 	 * @param twitter
 	 * @param status
-	 *            ƒŠƒvƒ‰ƒCæƒXƒe[ƒ^ƒXBnull‚à‰Â
+	 *            ãƒªãƒ—ãƒ©ã‚¤å…ˆã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ã€‚nullã‚‚å¯
 	 * @param text
 	 * @param isDebug
-	 *            false‚¾‚ÆƒRƒ“ƒ\[ƒ‹‚É“f‚­Btrue‚¾‚Æ‚Â‚Ô‚â‚­B
+	 *            falseã ã¨ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã«åãã€‚trueã ã¨ã¤ã¶ã‚„ãã€‚
 	 * @throws TwitterException
 	 */
 	private void statusUpdateIfIsNotDebugging(Twitter twitter, Status status,
@@ -346,24 +347,24 @@ public class StatusAnalyzer {
 		if (!isDebug) {
 			StatusUpdate sup = new StatusUpdate(text);
 			if (status != null) {
-				// ƒŠƒvƒ‰ƒCæ‚ª‚ ‚é
+				// ãƒªãƒ—ãƒ©ã‚¤å…ˆãŒã‚ã‚‹
 				sup.inReplyToStatusId(status.getId());
 			}
 			twitter.updateStatus(sup);
 		}
 
-		// yƒRƒ“ƒ\[ƒ‹z
-		// ƒŠƒvƒ‰ƒCæ‚ª‚ ‚éê‡A‚»‚ÌID‚ğo‚·
+		// ã€ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã€‘
+		// ãƒªãƒ—ãƒ©ã‚¤å…ˆãŒã‚ã‚‹å ´åˆã€ãã®IDã‚’å‡ºã™
 		System.out.println(Main.getTime()
 				+ " "
 				+ text
 				+ (status != null ? " [STATUS_ID = " + status.getId()
-						+ " ‚Ö‚Ì•ÔM‚Å‚·]" : ""));
+						+ " ã¸ã®è¿”ä¿¡ã§ã™]" : ""));
 
 	}
 
 	/**
-	 * ƒŠƒcƒC[ƒg”ÅB
+	 * ãƒªãƒ„ã‚¤ãƒ¼ãƒˆç‰ˆã€‚
 	 * 
 	 * @param twitter
 	 * @param targetTweet
@@ -377,14 +378,14 @@ public class StatusAnalyzer {
 			twitter.retweetStatus(targetTweet.getId());
 		}
 
-		// yƒRƒ“ƒ\[ƒ‹z
-		System.out.println(Main.getTime() + " yŸ‚ğRT‚µ‚Ü‚µ‚½z"
+		// ã€ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã€‘
+		System.out.println(Main.getTime() + " ã€æ¬¡ã‚’RTã—ã¾ã—ãŸã€‘"
 				+ targetTweet.getText());
 
 	}
 
 	/**
-	 * DM”ÅB
+	 * DMç‰ˆã€‚
 	 * 
 	 * @param twitter
 	 * @param targetUserId
@@ -399,13 +400,13 @@ public class StatusAnalyzer {
 			twitter.sendDirectMessage(getScreenName, message);
 		}
 
-		// yƒRƒ“ƒ\[ƒ‹z
-		System.out.println(Main.getTime() + " yDM‚ğ‘—•t‚µ‚Ü‚µ‚½z @" + getScreenName
+		// ã€ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ã€‘
+		System.out.println(Main.getTime() + " ã€DMã‚’é€ä»˜ã—ã¾ã—ãŸã€‘ @" + getScreenName
 				+ " " + message);
 
 	}
 
-	// ƒ†[ƒUî•ñiƒtƒHƒƒ[j•Û‘¶
+	// ãƒ¦ãƒ¼ã‚¶æƒ…å ±ï¼ˆãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ï¼‰ä¿å­˜
 	private static String USER_DATA_FOLLOWERS_FILE_PATH = "_userdata.dat";
 
 	public void saveToUserData_Followers(User user, IDs follower) {
@@ -444,8 +445,8 @@ public class StatusAnalyzer {
 				return readIds;
 
 			} catch (Exception e) {
-				System.out.println("yƒ†[ƒU“Ç‚İo‚µ‚Ì¸”sz"
-						+ "ƒf[ƒ^ƒtƒ@ƒCƒ‹‚Í‚ ‚é‚¯‚ÇA‚È‚ñ‚©ƒƒbƒN‚©‚µ‚ç‚ñ‚¯‚Ç“Ç‚ß‚È‚©‚Á‚½");
+				System.out.println("ã€ãƒ¦ãƒ¼ã‚¶èª­ã¿å‡ºã—ã®å¤±æ•—ã€‘"
+						+ "ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã¯ã‚ã‚‹ã‘ã©ã€ãªã‚“ã‹ãƒ­ãƒƒã‚¯ã‹ã—ã‚‰ã‚“ã‘ã©èª­ã‚ãªã‹ã£ãŸ");
 				e.printStackTrace();
 			}
 
@@ -455,11 +456,11 @@ public class StatusAnalyzer {
 
 	}
 
-	// ƒ†[ƒUî•ñiƒtƒHƒƒ[j•Û‘¶
+	// ãƒ¦ãƒ¼ã‚¶æƒ…å ±ï¼ˆãƒ•ã‚©ãƒ­ãƒ¯ãƒ¼ï¼‰ä¿å­˜
 	private static String USER_DATA_EXP_FILE_PATH = "usersEXPdata.dat";
 
 	/**
-	 * ‘Sƒ†[ƒU•ª1ƒtƒ@ƒCƒ‹
+	 * å…¨ãƒ¦ãƒ¼ã‚¶åˆ†1ãƒ•ã‚¡ã‚¤ãƒ«
 	 */
 	public void saveToUserData_Experiences(List<EXPStatus> data) {
 
@@ -496,8 +497,8 @@ public class StatusAnalyzer {
 				return readIds;
 
 			} catch (Exception e) {
-				System.out.println("yƒ†[ƒU“Ç‚İo‚µ‚Ì¸”s2z"
-						+ "ƒf[ƒ^ƒtƒ@ƒCƒ‹‚Í‚ ‚é‚¯‚ÇA‚È‚ñ‚©ƒƒbƒN‚©‚µ‚ç‚ñ‚¯‚Ç“Ç‚ß‚È‚©‚Á‚½");
+				System.out.println("ã€ãƒ¦ãƒ¼ã‚¶èª­ã¿å‡ºã—ã®å¤±æ•—2ã€‘"
+						+ "ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã¯ã‚ã‚‹ã‘ã©ã€ãªã‚“ã‹ãƒ­ãƒƒã‚¯ã‹ã—ã‚‰ã‚“ã‘ã©èª­ã‚ãªã‹ã£ãŸ");
 				e.printStackTrace();
 			}
 
